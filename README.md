@@ -2,7 +2,7 @@
 
 **Corporate Investments in Diverse Led Funds**
 
-#### Team Lead: [Otis Jennings](https://www.linkedin.com/in/otis-jennings-phd-06619b1/)
+#### Team Lead: [Dr. Otis Jennings](https://www.linkedin.com/in/otis-jennings-phd-06619b1/)
 #### Team Manager: [Aditya John](https://github.com/adityaemmanuel)
 #### Team Members: [Piper Fitzgerald](https://github.com/phf9),  [Dingkun Yang](https://github.com/Yer1k), [Kathleen Zhang](https://github.com/kathl33nzhang)
 
