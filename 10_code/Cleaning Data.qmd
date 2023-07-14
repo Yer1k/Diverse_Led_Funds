@@ -1,0 +1,27 @@
+---
+title: "Cleaning Data"
+author: "Kathleen Zhang"
+format: pdf
+---
+
+## Read in the data
+
+-   <div>
+
+    ```{r read-data, message = F, warning = F}
+
+    library(tidyverse)
+    library(tidymodels)
+    library(dplyr)
+
+    getwd()
+    setwd("/Users/kathleenzhang/Diverse Led Funds/00_source_data")
+
+    investments <- read.csv("investments.csv")
+
+    investments$X <- NULL
+    investments <- investments[-c(1:6),]
+
+    ```
+
+    </div>
