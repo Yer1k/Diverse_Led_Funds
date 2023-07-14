@@ -13,15 +13,52 @@ format: pdf
     library(tidyverse)
     library(tidymodels)
     library(dplyr)
+    library(lubridate)
 
     getwd()
     setwd("/Users/kathleenzhang/Diverse Led Funds/00_source_data")
 
-    investments <- read.csv("investments.csv")
-
-    investments$X <- NULL
-    investments <- investments[-c(1:6),]
+    basediversity <- read.csv("baseventures.csv")
+    base <- read.csv("baseventures2.csv")
 
     ```
 
     </div>
+
+## Cleaning Data
+
+-   <div>
+
+    ```{r cleaning-data, message = F, warning = F}
+
+    basediversity["Money.Raised"][basediversity["Money.Raised"] == "—"] <- NA
+
+    as.numeric(basediversity$Announced.Date)
+
+    numericaldate <- lubridate::dmy(basediversity$Announced.Date)
+
+    basediversity |>
+      mutate(year = as.Date(basediversity$Announced.Date,"%m/%d/%Y"), "%Y")
+
+    keeps <- c("PORTFOLIO.COMPANY","STAGE", "DEAL.DATE", "DEAL.SIZE..CURR..MN.", "PORTFOLIO.COMPANY.STATUS", "PORTFOLIO.COMPANY.STATE..COUNTY", "PRIMARY.INDUSTRY" )
+
+    base = base[keeps]
+    ```
+
+    </div>
+
+## Graphing Data
+
+-   <div>
+
+    ```{r graphing-data, message = F, warning = F}
+
+    ggplot(data = basediversity, mapping = aes(x = "Diversity.Spotlight", y = "Money.Raised")) +
+      geom_col()
+      
+
+    ```
+
+    </div>
+
+## 
