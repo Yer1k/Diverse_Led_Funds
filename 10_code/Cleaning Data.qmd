@@ -10,10 +10,14 @@ format: pdf
 
     ```{r read-data, message = F, warning = F}
 
+    options(scipen = 999)
+
     library(tidyverse)
+    library(stringr)
     library(tidymodels)
     library(dplyr)
     library(lubridate)
+    library(plotly)
 
     getwd()
     setwd("/Users/kathleenzhang/Diverse Led Funds/00_source_data")
@@ -25,13 +29,74 @@ format: pdf
 
     </div>
 
-## Cleaning Data
+## Cleaning Data (Money)
 
 -   <div>
 
     ```{r cleaning-data, message = F, warning = F}
 
     basediversity["Money.Raised"][basediversity["Money.Raised"] == "—"] <- NA
+
+    basediversity <- basediversity |>
+      mutate(Money.Raised2 = (gsub('[$]', '', basediversity$Money.Raised)))
+
+    basediversity <- basediversity |>
+      mutate(
+        Money.Raised3 = case_when(
+       str_detect(`Money.Raised2` , "M") ~ "1000000",
+       str_detect(`Money.Raised2` , "K") ~ "1000"))
+
+    basediversity <- basediversity |>
+      mutate(Money.Raised2 = (gsub('[$MK]', '', basediversity$Money.Raised)))
+
+    basediversity$Money.Raised2 <- as.numeric(basediversity$Money.Raised2)
+    basediversity$Money.Raised3 <- as.numeric(basediversity$Money.Raised3)
+
+    basediversity <- basediversity |>
+      mutate(Money.Raised4 = Money.Raised2 * Money.Raised3)
+
+
+    ```
+
+    </div>
+
+## Cleaning Data (Labels)
+
+-   <div>
+
+    ```{r cleaning-data-names, message = F, warning = F}
+
+    basediversity <- basediversity |>
+      mutate(CATEGORY = recode(basediversity$Diversity.Spotlight..US.Headquarters.Only., 
+                               "Women Founded, Women Led" = "Women F/L",
+                               "Women Founded" = "Women F",
+                               "Middle Eastern / North African Founded, Middle Eastern / North African Led, Women Founded, Women Led" = "ME/NA F/L, Women F/L",
+                               "Hispanic / Latine Founded, Hispanic / Latine Led, Women Founded, Women Led" = "H/L F/L, Women F/L",
+                                "Black / African American Founded" = "Black F",
+                                "Black / African American Founded, Black / African American Led" = "Black F/L",
+                                "Black / African American Founded, Black / African American Led, Women Founded, Women Led" = "Black F/L, Women F/L",
+                                "Black / African American Founded, Black / African American Led, Women Founded" = "Black F/L, Women F",
+                               "Black / African American Founded, Women Founded" = "Black F, Women F"
+                               ))
+
+     round <- function(text) {
+      words <- strsplit(text, " ")[[1]]
+      paste(words[1], words[2], sep = " ")
+    }
+
+    basediversity_shorter <- basediversity %>%
+      mutate(Funding.Round2 = sapply(Funding.Round, round))
+
+
+    ```
+
+    </div>
+
+## Cleaning Data (Date)
+
+-   <div>
+
+    ```{r cleaning-data-date, message = F, warning = F}
 
     as.numeric(basediversity$Announced.Date)
 
@@ -40,9 +105,6 @@ format: pdf
     basediversity |>
       mutate(year = as.Date(basediversity$Announced.Date,"%m/%d/%Y"), "%Y")
 
-    keeps <- c("PORTFOLIO.COMPANY","STAGE", "DEAL.DATE", "DEAL.SIZE..CURR..MN.", "PORTFOLIO.COMPANY.STATUS", "PORTFOLIO.COMPANY.STATE..COUNTY", "PRIMARY.INDUSTRY" )
-
-    base = base[keeps]
     ```
 
     </div>
@@ -53,10 +115,30 @@ format: pdf
 
     ```{r graphing-data, message = F, warning = F}
 
-    ggplot(data = basediversity, mapping = aes(x = "Diversity.Spotlight", y = "Money.Raised")) +
-      geom_col()
-      
+    as.character(basediversity$Diversity.Spotlight..US.Headquarters.Only.)
 
+    basediversity1 <- ggplot(data = basediversity_shorter, mapping = aes(x = Money.Raised4, y = CATEGORY, fill = Funding.Round2)) +
+      geom_col() +
+      labs(title = "Base Ventures Investments by Diversity", x = "Money Raised (USD)", y = "Diversity Type") +
+      theme_bw() +
+      scale_x_continuous(labels=scales::dollar_format())
+      
+    ggplotly(basediversity1)
+
+    ```
+
+    </div>
+
+## Cleaning Data (General)
+
+-   <div>
+
+    ```{r cleaning-base, message = F, warning = F}
+
+    keeps <- c("PORTFOLIO.COMPANY","STAGE", "DEAL.DATE", "DEAL.SIZE..CURR..MN.", "PORTFOLIO.COMPANY.STATUS", "PORTFOLIO.COMPANY.STATE..COUNTY", "PRIMARY.INDUSTRY" )
+
+    base = base[keeps]
+      
     ```
 
     </div>
